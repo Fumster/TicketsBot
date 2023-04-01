@@ -4,11 +4,11 @@ from telebot.apihelper import ApiTelegramException
 import re
 
 
-channel_id = "-1001806307331"
+channel_id = ""
 
 
 def initialise_bot():
-    bot = telebot.TeleBot('5525327829:AAGHOVsQxGTf2C4D5y7Rup6qBbjKpQRit9c')
+    bot = telebot.TeleBot()
 
     @bot.message_handler(commands=['add'])
     def add_command_handler(message):
