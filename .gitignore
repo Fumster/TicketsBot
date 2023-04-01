@@ -1,3 +1,6 @@
 # created by virtualenv automatically
 .idea/
 
+
+
+bot = telebot.TeleBot('5525327829:AAGHOVsQxGTf2C4D5y7Rup6qBbjKpQRit9c')
