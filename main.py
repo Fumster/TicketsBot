@@ -1,7 +1,7 @@
 import telebot
 from telebot import types
 from telebot.apihelper import ApiTelegramException
-import re
+# import re
 
 
 channel_id = ""
