@@ -8,7 +8,7 @@ channel_id = ""
 
 
 def initialise_bot():
-    bot = telebot.TeleBot()
+    bot = telebot.TeleBot() #  test comment
 
     @bot.message_handler(commands=['add'])
     def add_command_handler(message):
