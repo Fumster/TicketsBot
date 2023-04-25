@@ -3,11 +3,12 @@ from telebot import types
 from telebot.apihelper import ApiTelegramException
 import configparser
 
+import workWithDB as db
+
 config = configparser.ConfigParser()
 config.read("settings.ini")
 
 channel_id = config["Bot"]["channel_id"]
-
 
 def initialise_bot():
     bot = telebot.TeleBot(config["Bot"]["token"])  # test comment

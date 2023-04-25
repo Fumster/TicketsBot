@@ -14,11 +14,17 @@ con = psycopg2.connect(
     port=config["Database"]["port"]
 )
 
+def createNewIssue( channel_msg_id, chat_id, opener_msg_id, issuer_msg_id, author, closer, room, content, solution, status, opening_time):
+    cursor = con.cursor()
+    cursor.execute(
+         f'''INSERT INTO applications (channel_msg_id, chat_id, opener_msg_id, issuer_msg_id, author, closer, room, content, solution, status, opening_time) 
+        VALUES ({channel_msg_id}, {chat_id}, {opener_msg_id}, {issuer_msg_id}, {author}, {closer}, {room}, {content}, {solution}, {status}, TIMESTAMP '{opening_time}')'''
+    )
+    con.commit()
 
-def createNewIssue():
+    con.close()
+
     return
-
-
 def acceptIssue(message_chat_id, user_id):
     try:
         cursor = con.cursor()
@@ -68,5 +74,12 @@ def closeApplications(channel_msg_id):
             cursor.close()
             con.close()
             print("Соединение с PostgreSQL закрыто")
+
+
 # acceptIssue(1654, 123)
-closeApplications(1655)
+# closeApplications(1655)
+#
+# createNewIssue(1654, 654856, 84654, 846564685, 46868465, "89746", "5458", "5443543", "453452", False, open_time=timestamp_str)
+#
+#
+# print(dt.now())
