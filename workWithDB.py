@@ -48,7 +48,7 @@ def acceptIssue(message_chat_id, user_id):
             con.close()
             print("Соединение с PostgreSQL закрыто")
 
-def closeApplications():
+def closeApplications(channel_msg_id):
     try:
         now = dt.now()
 
@@ -57,8 +57,8 @@ def closeApplications():
 
         cursor = con.cursor()
         # Обновление отдельной записи
-        sql_update_query = """Update applications set status = %s, closed_time = TIMESTAMP timestamp_str where channel_msg_id = %s"""
-        cursor.execute(sql_update_query, (True, timestamp_str, 1))
+        sql_update_query = """Update applications set status = %s, closed_time = TIMESTAMP %s where channel_msg_id = %s"""
+        cursor.execute(sql_update_query, (True, timestamp_str, channel_msg_id))
         con.commit()
         print("Заявка закрыта")
     except (Exception, Error) as error:
@@ -69,4 +69,4 @@ def closeApplications():
             con.close()
             print("Соединение с PostgreSQL закрыто")
 # acceptIssue(1654, 123)
-closeApplications()
+closeApplications(1655)
