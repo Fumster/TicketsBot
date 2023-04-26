@@ -14,12 +14,16 @@ con = psycopg2.connect(
     port=config["Database"]["port"]
 )
 
-def createNewIssue( channel_msg_id, chat_id, opener_msg_id, issuer_msg_id, author, closer, room, content, solution, status, opening_time):
+def createNewIssue( channel_msg_id, chat_id, opener_msg_id, issuer_msg_id, room, content):
     cursor = con.cursor()
-    cursor.execute(
-         f'''INSERT INTO applications (channel_msg_id, chat_id, opener_msg_id, issuer_msg_id, author, closer, room, content, solution, status, opening_time) 
-        VALUES ({channel_msg_id}, {chat_id}, {opener_msg_id}, {issuer_msg_id}, {author}, {closer}, {room}, {content}, {solution}, {status}, TIMESTAMP '{opening_time}')'''
-    )
+    now = dt.now()
+
+    # Преобразование объекта datetime в строку с помощью метода strftime()
+    timestamp_str = now.strftime('%Y-%m-%d %H:%M:%S')
+    sql_insert_query = """INSERT INTO applications (channel_msg_id, chat_id, opener_msg_id, issuer_msg_id, room, content, opening_time) 
+                         VALUES (%s,%s,%s,%s,%s,%s,TIMESTAMP %s)"""
+    record_to_insert = (channel_msg_id, chat_id, opener_msg_id, issuer_msg_id, room, content, timestamp_str)
+    cursor.execute(sql_insert_query, record_to_insert)
     con.commit()
 
     con.close()
@@ -78,8 +82,12 @@ def closeApplications(channel_msg_id):
 
 # acceptIssue(1654, 123)
 # closeApplications(1655)
+# now = dt.now()
 #
-# createNewIssue(1654, 654856, 84654, 846564685, 46868465, "89746", "5458", "5443543", "453452", False, open_time=timestamp_str)
+# # Преобразование объекта datetime в строку с помощью метода strftime()
+# timestamp_str = now.strftime('%Y-%m-%d %H:%M:%S')
+#
+# createNewIssue(1654, 654856, 84654, 846564685, 46868465, "89746", "5458", "5443543", "453452", timestamp_str)
 #
 #
 # print(dt.now())
