@@ -22,13 +22,16 @@ closing = False
 # Начало работы
 @bot.message_handler(commands=['start'])
 def start(message):
+
+    # Инициализация кнопок
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = types.KeyboardButton("➕ Добавить заявку")
     btn2 = types.KeyboardButton("❓ Информация о боте")
     btn3 = types.KeyboardButton("🚫 Закрыть заявку")
     markup.add(btn1, btn2, btn3)
+
     bot.send_message(message.chat.id,
-                     text="Привет, {0.first_name}! Я тестовый бот для твоей статьи для habr.com ".format(
+                     text="Вас приветствует бот для подачи заявок АСУ".format(
                          message.from_user), reply_markup=markup)
 
 
@@ -40,10 +43,11 @@ def func(message):
     global closing
     global issue_id
 
+    # Добавление заявки
     if message.text == "➕ Добавить заявку":
 
         # bot.delete_message(message.chat.id, message.id-2)
-        bot.delete_message(message.chat.id, message.id - 1)
+        # bot.delete_message(message.chat.id, message.id - 1)
         bot.delete_message(message.chat.id, message.id)
 
         # bot.edit_message_text("заявка должна быть не менее 10 символов", message.chat.id, message.id-2)
@@ -60,12 +64,14 @@ def func(message):
 
         bot.send_message(message.chat.id, text="Выберите блок", reply_markup=markup)
 
+    # информация о боте
     elif message.text == "❓ Информация о боте":
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         back = types.KeyboardButton("Назад")
         markup.add(back)
         bot.send_message(message.chat.id, text="Данный бот создан для подачи заявок в АСУ", reply_markup=markup)
 
+    # Закрытие заявки
     elif message.text == "🚫 Закрыть заявку":
 
         bot.delete_message(message.chat.id, message.id - 1)
@@ -76,6 +82,8 @@ def func(message):
         bot.send_message(message.chat.id, text="Введите номер заявки", reply_markup=a)
         closing = True
 
+    # Обработка блоков
+    # -----------------------------------------------------
     elif message.text == "А":
 
         bot.delete_message(message.chat.id, message.id - 1)
@@ -138,7 +146,9 @@ def func(message):
         a = telebot.types.ReplyKeyboardRemove()
         block = block.replace(block, message.text)
         bot.send_message(message.chat.id, "Напишите кабинет", reply_markup=a)
+    # -----------------------------------------------------
 
+    # кнопка назад
     elif message.text == "Назад":
 
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -149,38 +159,61 @@ def func(message):
         bot.delete_message(message.chat.id, message.id - 1)
         bot.delete_message(message.chat.id, message.id)
         bot.send_message(message.chat.id, text="Главное меню", reply_markup=markup)
+
     else:
+
         if block == '_' and cab == '_':
+
+            # Закрытие заявки
             if closing:
                 if issue_id == '_':
                     issue_id = issue_id.replace(issue_id, message.text)
                     bot.send_message(message.chat.id, text="Введите решение")
                 else:
-                    print("aaaa")
+
+                    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                    button1 = types.KeyboardButton("➕ Добавить заявку")
+                    button2 = types.KeyboardButton("❓ Информация о боте")
+                    button3 = types.KeyboardButton("🚫 Закрыть заявку")
+                    markup.add(button1, button2, button3)
+
+                    bot.send_message(message.chat.id,
+                                              text=f"Заявка {issue_id} закрыта".format(
+                                                  message.from_user), reply_markup=markup)
+
+
+            # Обработка неизвестных команд
             else:
                 bot.send_message(message.chat.id, text="На такую комманду я не запрограммирован..")
 
-
+        # Создание новой заявки
         elif block != '_' and cab == '_':
+
+        # Ввод номера кабинета
             bot.delete_message(message.chat.id, message.id - 1)
             bot.delete_message(message.chat.id, message.id)
+
+            # Проверка номера кабинета
             if message.text.isdigit():
                 cab = cab.replace(cab, message.text)
                 bot.send_message(message.chat.id, text="Опишите проблему")
             else:
-
                 bot.send_message(message.chat.id, f"Не правильный формат номера кабинета кабинета, должны содержаться только числа")
         else:
+            # Ввод описания проблемы
             bot.delete_message(message.chat.id, message.id - 1)
             bot.delete_message(message.chat.id, message.id)
 
-
+            # Возвращение к изначальному меню
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
             button1 = types.KeyboardButton("➕ Добавить заявку")
             button2 = types.KeyboardButton("❓ Информация о боте")
             button3 = types.KeyboardButton("🚫 Закрыть заявку")
             markup.add(button1, button2, button3)
+
+            # Формирование кабинета
             room = block + cab
+
             # Отправка в чат АСУ
             # ---------------------------------------
             markup2 = types.InlineKeyboardMarkup(row_width=1)
@@ -191,17 +224,13 @@ def func(message):
             bot.send_message(channel_id,
                              f'Новая заявка #{issuer_msg_id}\nАвтор:{message.from_user.username}\nКабинет: {room}\nСодержание:{message.text}',
                              reply_markup=markup2)
-            # bot.edit_message_text(
-            #     f'⚠️Новая заявка #{issuer_msg_id}\nАвтор:{message.from_user.username}\nКабинет: {room}\nСодержание:{message.text}',
-            #     channel_id,
-            #     issuer_msg_id, reply_markup=markup2)
             # ---------------------------------
-            # bot.edit_message_text(f"заявка #{issuer_msg_id} добавлена", message.chat.id, message.id)
-            bot.send_message(message.chat.id, f"заявка #{issuer_msg_id} добавлена")
+
+            bot.send_message(message.chat.id, f"заявка #{issuer_msg_id} добавлена", reply_markup=markup)
+
             db.createNewIssue(channel_id, message.chat.id, message.id, issuer_msg_id, room, message.text)
-            bot.send_message(message.chat.id,
-                             text="Ожидается следующая заявка".format(
-                                 message.from_user), reply_markup=markup)
+            print("was created new issue")
+
             cab = cab.replace(cab, "_")
             block = block.replace(block, "_")
 
@@ -230,4 +259,5 @@ def accept_ticket(callback):
     bot.send_message(chat_id=callback.from_user.id, text="Это сообщение должен был написать бот тому, кто принял")
 
 
-bot.polling(none_stop=True)
+# bot.polling(none_stop=True)
+bot.infinity_polling(timeout=10, long_polling_timeout=5)
