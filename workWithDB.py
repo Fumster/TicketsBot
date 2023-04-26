@@ -65,17 +65,17 @@ def acceptIssue(message_chat_id, user_id):
             print("Соединение с PostgreSQL закрыто")
 
 
-def closeApplications(channel_msg_id):
+def closeApplications(channel_msg_id,closer,solution):
     try:
         now = dt.now()
-
+        print("issuer_msg_id",channel_msg_id)
         # Преобразование объекта datetime в строку с помощью метода strftime()
         timestamp_str = now.strftime('%Y-%m-%d %H:%M:%S')
 
         cursor = con.cursor()
         # Обновление отдельной записи
-        sql_update_query = """Update applications set status = %s, closed_time = TIMESTAMP %s where channel_msg_id = %s"""
-        cursor.execute(sql_update_query, (True, timestamp_str, channel_msg_id))
+        sql_update_query = """Update applications set closer =%s, solution=%s, status = %s, closed_time = TIMESTAMP %s where issuer_msg_id = %s"""
+        cursor.execute(sql_update_query, (closer, solution, True, timestamp_str, channel_msg_id))
         con.commit()
         print("Заявка закрыта")
     except (Exception, Error) as error:
