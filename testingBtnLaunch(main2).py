@@ -15,6 +15,9 @@ channel_id = config["Bot"]["channel_id"]
 block = "_"
 cab = "_"
 
+issue_id="_"
+closing = False
+
 
 # Начало работы
 @bot.message_handler(commands=['start'])
@@ -31,8 +34,12 @@ def start(message):
 
 @bot.message_handler(content_types=['text'])
 def func(message):
+
     global block
     global cab
+    global closing
+    global issue_id
+
     if message.text == "➕ Добавить заявку":
 
         # bot.delete_message(message.chat.id, message.id-2)
@@ -58,6 +65,16 @@ def func(message):
         back = types.KeyboardButton("Назад")
         markup.add(back)
         bot.send_message(message.chat.id, text="Данный бот создан для подачи заявок в АСУ", reply_markup=markup)
+
+    elif message.text == "🚫 Закрыть заявку":
+
+        bot.delete_message(message.chat.id, message.id - 1)
+        bot.delete_message(message.chat.id, message.id)
+
+        a = telebot.types.ReplyKeyboardRemove()
+
+        bot.send_message(message.chat.id, text="Введите номер заявки", reply_markup=a)
+        closing = True
 
     elif message.text == "А":
 
@@ -134,7 +151,16 @@ def func(message):
         bot.send_message(message.chat.id, text="Главное меню", reply_markup=markup)
     else:
         if block == '_' and cab == '_':
-            bot.send_message(message.chat.id, text="На такую комманду я не запрограммирован..")
+            if closing:
+                if issue_id == '_':
+                    issue_id = issue_id.replace(issue_id, message.text)
+                    bot.send_message(message.chat.id, text="Введите решение")
+                else:
+                    print("aaaa")
+            else:
+                bot.send_message(message.chat.id, text="На такую комманду я не запрограммирован..")
+
+
         elif block != '_' and cab == '_':
             bot.delete_message(message.chat.id, message.id - 1)
             bot.delete_message(message.chat.id, message.id)
