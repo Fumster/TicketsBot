@@ -37,19 +37,19 @@ def acceptIssue(message_chat_id, user_id):
     try:
         cursor = con.cursor()
         # print("Таблица до обновления записи")
-        sql_select_query = """select * from applications where channel_msg_id  = %s"""
+        sql_select_query = """select * from applications where issuer_msg_id  = %s"""
         cursor.execute(sql_select_query, (message_chat_id,))
         record = cursor.fetchone()
         print(record)
 
         # Обновление отдельной записи
-        sql_update_query = """Update applications set issuer = %s where channel_msg_id = %s"""
+        sql_update_query = """Update applications set issuer = %s where issuer_msg_id = %s"""
         cursor.execute(sql_update_query, (user_id, message_chat_id))
         con.commit()
         print("Заказ быд принять сотрудником АСУ")
 
         # print("Таблица после обновления записи")
-        sql_select_query = """select * from applications where channel_msg_id = %s"""
+        sql_select_query = """select * from applications where issuer_msg_id = %s"""
         cursor.execute(sql_select_query, (message_chat_id,))
         record = cursor.fetchone()
         print(record)
@@ -91,11 +91,7 @@ def getNewIdForApplication():
     sql_select_query = """SELECT MAX(id) FROM applications"""
     cursor.execute(sql_select_query)
     id = cursor.fetchone()
-
-    if id[0] is None:
-        return 1
-    else:
-        return id[0] + 1
+    return id[0]
 
 # acceptIssue(1654, 123)
 # closeApplications(1655)
