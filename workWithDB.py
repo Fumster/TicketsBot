@@ -37,6 +37,7 @@ def acceptIssue(message_chat_id, user_id):
     try:
         cursor = con.cursor()
         # print("Таблица до обновления записи")
+        print("message_chat_id", message_chat_id)
         sql_select_query = """select * from applications where issuer_msg_id  = %s"""
         cursor.execute(sql_select_query, (message_chat_id,))
         record = cursor.fetchone()
@@ -88,7 +89,7 @@ def closeApplications(channel_msg_id):
 
 def getNewIdForApplication():
     cursor = con.cursor()
-    sql_select_query = """SELECT MAX(id) FROM applications"""
+    sql_select_query = """SELECT MAX(issuer_msg_id) FROM applications"""
     cursor.execute(sql_select_query)
     id = cursor.fetchone()
     return id[0]
