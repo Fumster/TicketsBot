@@ -14,7 +14,9 @@ con = psycopg2.connect(
     port=config["Database"]["port"]
 )
 
-def createNewIssue( channel_msg_id, chat_id, opener_msg_id, issuer_msg_id, room, content):
+
+def createNewIssue(channel_msg_id, chat_id, opener_msg_id, issuer_msg_id, room, content):
+    global con
     cursor = con.cursor()
     now = dt.now()
 
@@ -26,9 +28,11 @@ def createNewIssue( channel_msg_id, chat_id, opener_msg_id, issuer_msg_id, room,
     cursor.execute(sql_insert_query, record_to_insert)
     con.commit()
 
-    con.close()
+    # con.close()
 
     return
+
+
 def acceptIssue(message_chat_id, user_id):
     try:
         cursor = con.cursor()
@@ -40,7 +44,7 @@ def acceptIssue(message_chat_id, user_id):
 
         # Обновление отдельной записи
         sql_update_query = """Update applications set issuer = %s where channel_msg_id = %s"""
-        cursor.execute(sql_update_query, (user_id,message_chat_id))
+        cursor.execute(sql_update_query, (user_id, message_chat_id))
         con.commit()
         print("Заказ быд принять сотрудником АСУ")
 
@@ -54,9 +58,11 @@ def acceptIssue(message_chat_id, user_id):
         print("Ошибка при работе с PostgreSQL", error)
     finally:
         if con:
-            cursor.close()
-            con.close()
+            # cursor.close()
+            # con.close()
+
             print("Соединение с PostgreSQL закрыто")
+
 
 def closeApplications(channel_msg_id):
     try:
@@ -75,16 +81,21 @@ def closeApplications(channel_msg_id):
         print("Ошибка при работе с PostgreSQL", error)
     finally:
         if con:
-            cursor.close()
-            con.close()
+            # cursor.close()
+            # con.close()
             print("Соединение с PostgreSQL закрыто")
+
 
 def getNewIdForApplication():
     cursor = con.cursor()
     sql_select_query = """SELECT MAX(id) FROM applications"""
     cursor.execute(sql_select_query)
     id = cursor.fetchone()
-    return id
+
+    if id[0] is None:
+        return 1
+    else:
+        return id[0] + 1
 
 # acceptIssue(1654, 123)
 # closeApplications(1655)
@@ -97,4 +108,3 @@ def getNewIdForApplication():
 #
 #
 # print(dt.now())
-
