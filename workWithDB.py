@@ -65,10 +65,9 @@ def acceptIssue(message_chat_id, user_id):
             print("Соединение с PostgreSQL закрыто")
 
 
-def closeApplications(channel_msg_id,closer,solution):
+def closeApplications(channel_msg_id, closer, solution):
     try:
         now = dt.now()
-        print("issuer_msg_id",channel_msg_id)
         # Преобразование объекта datetime в строку с помощью метода strftime()
         timestamp_str = now.strftime('%Y-%m-%d %H:%M:%S')
 
@@ -109,9 +108,24 @@ def getNewIdForApplication():
 
 def isAccepted(issuer_msg_id):
     cursor = con.cursor()
-    sql_select_query = f"""SELECT status FROM applications WHERE issuer_msg_id = {issuer_msg_id} """
-    cursor.execute(sql_select_query)
+    sql_select_query = """select status from applications where issuer_msg_id  = %s"""
+    cursor.execute(sql_select_query, (issuer_msg_id,))
     check = cursor.fetchone()
     return check[0]
 
 
+def permissionToCloseApplication(issuer_msg_id):
+    cursor = con.cursor()
+    print("issuer_msg_id", issuer_msg_id)
+    sql_select_query = """select status from applications where issuer_msg_id  = %s"""
+    cursor.execute(sql_select_query, (issuer_msg_id,))
+    isStatus = cursor.fetchone()[0]
+    print(isStatus)
+    sql_select_query = """select issuer from applications where issuer_msg_id  = %s"""
+    cursor.execute(sql_select_query, (issuer_msg_id,))
+    isIssuer = cursor.fetchone()[0]
+    print(isIssuer)
+    return not (isIssuer is None) and not isStatus
+
+
+print(permissionToCloseApplication(52))
