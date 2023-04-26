@@ -92,7 +92,8 @@ def getNewIdForApplication():
     sql_select_query = """SELECT MAX(issuer_msg_id) FROM applications"""
     cursor.execute(sql_select_query)
     id = cursor.fetchone()
-    return id[0]
+    return id[0] + 1
+
 
 # acceptIssue(1654, 123)
 # closeApplications(1655)
@@ -105,3 +106,12 @@ def getNewIdForApplication():
 #
 #
 # print(dt.now())
+
+def isAccepted(issuer_msg_id):
+    cursor = con.cursor()
+    sql_select_query = f"""SELECT status FROM applications WHERE issuer_msg_id = {issuer_msg_id} """
+    cursor.execute(sql_select_query)
+    check = cursor.fetchone()
+    return check[0]
+
+
