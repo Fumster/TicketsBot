@@ -15,14 +15,13 @@ channel_id = config["Bot"]["channel_id"]
 block = "_"
 cab = "_"
 
-issue_id="_"
+issue_msg_id = "_"
 closing = False
 
 
 # Начало работы
 @bot.message_handler(commands=['start'])
 def start(message):
-
     # Инициализация кнопок
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = types.KeyboardButton("➕ Добавить заявку")
@@ -37,11 +36,10 @@ def start(message):
 
 @bot.message_handler(content_types=['text'])
 def func(message):
-
     global block
     global cab
     global closing
-    global issue_id
+    global issue_msg_id
 
     # Добавление заявки
     if message.text == "➕ Добавить заявку":
@@ -166,8 +164,8 @@ def func(message):
 
             # Закрытие заявки
             if closing:
-                if issue_id == '_':
-                    issue_id = issue_id.replace(issue_id, message.text)
+                if issue_msg_id == '_':
+                    issue_msg_id = issue_msg_id.replace(issue_msg_id, message.text)
                     bot.send_message(message.chat.id, text="Введите решение")
                 else:
 
@@ -178,8 +176,15 @@ def func(message):
                     markup.add(button1, button2, button3)
 
                     bot.send_message(message.chat.id,
-                                              text=f"Заявка {issue_id} закрыта".format(
-                                                  message.from_user), reply_markup=markup)
+                                     text=f"Заявка {issue_msg_id} закрыта\nРешение: {message.text}".format(
+                                         message.from_user), reply_markup=markup)
+
+                    markup2 = types.InlineKeyboardMarkup(row_width=1)
+                    btn1 = types.InlineKeyboardButton(text="Принять", callback_data="accept")
+                    markup2.add(btn1)
+                    bot.send_message(message.chat.id,
+                                     text=f"Заявка {issue_msg_id} закрыта {message.text}\nРешение: {message.text}".format(
+                                         message.from_user), reply_markup=markup2)
 
 
             # Обработка неизвестных команд
@@ -189,7 +194,7 @@ def func(message):
         # Создание новой заявки
         elif block != '_' and cab == '_':
 
-        # Ввод номера кабинета
+            # Ввод номера кабинета
             bot.delete_message(message.chat.id, message.id - 1)
             bot.delete_message(message.chat.id, message.id)
 
@@ -198,7 +203,8 @@ def func(message):
                 cab = cab.replace(cab, message.text)
                 bot.send_message(message.chat.id, text="Опишите проблему")
             else:
-                bot.send_message(message.chat.id, f"Не правильный формат номера кабинета кабинета, должны содержаться только числа")
+                bot.send_message(message.chat.id,
+                                 f"Не правильный формат номера кабинета кабинета, должны содержаться только числа")
         else:
             # Ввод описания проблемы
             bot.delete_message(message.chat.id, message.id - 1)
@@ -244,10 +250,20 @@ def accept_ticket(callback):
     print("\n")
     print(callback.from_user)
     content = callback.message.text.split("Содержание:")[1]
+
     bot.edit_message_text(
         f"🟨заявка #{callback.message.id} в работе - {callback.from_user.username}\nСодержание: {content}",
         channel_id, callback.message.id)
-    bot.forward_message(callback.from_user.id, channel_id, callback.message.id)
+
+    markup2 = types.InlineKeyboardMarkup(row_width=1)
+    btn1 = types.InlineKeyboardButton(text="Закрыть", callback_data=f"close-{callback.message.id}")
+    markup2.add(btn1)
+
+    bot.send_message(chat_id=callback.from_user.id,
+                     text=f"🟨 Вы приняли заявку #{callback.message.id}\nСодержание: {content}", reply_markup=markup2)
+
+    # bot.forward_message(callback.from_user.id, channel_id, callback.message.id)
+
     db.acceptIssue(callback.message.id, callback.from_user.id)
     # type_answer = callback.data.split("@")[0].split(":")[1]
 
@@ -256,7 +272,13 @@ def accept_ticket(callback):
     #     "not_enough_cases": "Мало кейсов"
     # }
     # text = answers[type_answer]
-    bot.send_message(chat_id=callback.from_user.id, text="Это сообщение должен был написать бот тому, кто принял")
+    # bot.send_message(chat_id=callback.from_user.id, text="Это сообщение должен был написать бот тому, кто принял")
+
+
+@bot.callback_query_handler(func=lambda callback: 'close' in callback.data)
+def closingIssueHandler(callback):
+    print(callback.data.split("-")[1])
+    return
 
 
 # bot.polling(none_stop=True)
