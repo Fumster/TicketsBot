@@ -92,7 +92,7 @@ def getNewIdForApplication():
     sql_select_query = """SELECT MAX(issuer_msg_id) FROM applications"""
     cursor.execute(sql_select_query)
     id = cursor.fetchone()
-    return id[0] + 1
+    return id[0]
 
 
 # acceptIssue(1654, 123)
