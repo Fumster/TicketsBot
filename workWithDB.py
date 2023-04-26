@@ -79,6 +79,12 @@ def closeApplications(channel_msg_id):
             con.close()
             print("Соединение с PostgreSQL закрыто")
 
+def getNewIdForApplication():
+    cursor = con.cursor()
+    sql_select_query = """SELECT MAX(id) FROM applications"""
+    cursor.execute(sql_select_query)
+    id = cursor.fetchone()
+    return id
 
 # acceptIssue(1654, 123)
 # closeApplications(1655)
