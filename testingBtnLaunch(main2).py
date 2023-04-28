@@ -289,5 +289,5 @@ def closingIssueHandler(callback):
     return
 
 
-bot.polling(none_stop=True)
-# bot.infinity_polling(timeout=10, long_polling_timeout=5)
+# bot.polling(none_stop=True)
+bot.infinity_polling(timeout=10, long_polling_timeout=5)
